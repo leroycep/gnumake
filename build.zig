@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) void {
     const make_dep = b.dependency("make", .{});
     const make_root = make_dep.path(".");
 
-    const make_exe= blk: {
+    const make_exe = blk: {
         const exe = b.addExecutable(.{
             .name = "make",
             .target = target,
@@ -125,7 +125,7 @@ pub fn build(b: *std.Build) void {
 fn target_has_sys_siglist(t: std.Build.ResolvedTarget) bool {
     if (t.result.isDarwin()) return true;
     if (t.result.isGnuLibC()) {
-        const vr = t.result.os.getVersionRange();
+        const vr = t.result.os.versionRange();
         // newer glibc does not allow linking with sys_siglist
         // https://lists.gnu.org/archive/html/info-gnu/2020-08/msg00002.html
         if (vr == .linux and vr.linux.glibc.major >= 2 and vr.linux.glibc.minor >= 32)
@@ -135,13 +135,7 @@ fn target_has_sys_siglist(t: std.Build.ResolvedTarget) bool {
     return false;
 }
 
-fn linkGlob(
-    b: *std.Build,
-    target: std.Build.ResolvedTarget,
-    optimize: std.builtin.OptimizeMode,
-    make_dep: *std.Build.Dependency,
-    make_exe: *std.Build.Step.Compile
-) void {
+fn linkGlob(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode, make_dep: *std.Build.Dependency, make_exe: *std.Build.Step.Compile) void {
     if (target.result.os.tag != .windows)
         return;
 
@@ -160,10 +154,10 @@ fn linkGlob(
     const fnmatch_header = b.addConfigHeader(.{
         .style = .{ .autoconf = make_dep.path("lib/fnmatch.in.h") },
         .include_path = "fnmatch.h",
-        }, .{
-	.FNM_PATHNAME = null,
-	.FNM_NOESCAPE = null,
-	.FNM_PERIOD = null,
+    }, .{
+        .FNM_PATHNAME = null,
+        .FNM_NOESCAPE = null,
+        .FNM_PERIOD = null,
     });
     lib.addConfigHeader(fnmatch_header);
     make_exe.addConfigHeader(fnmatch_header);
@@ -188,28 +182,26 @@ fn linkGlob(
 }
 
 const make_files_common = [_][]const u8{
-    "src/ar.c", "src/arscan.c", "src/commands.c",
-    "src/default.c", "src/dir.c", "src/expand.c",
-    "src/file.c", "src/function.c", "src/getopt.c",
-    "src/getopt1.c", "src/guile.c",
-    "src/hash.c", "src/implicit.c", "src/job.c",
-    "src/load.c", "src/loadapi.c", "src/main.c", "src/misc.c",
-    "src/output.c", "src/read.c",
-    "src/remake.c", "src/rule.c", "src/shuffle.c",
-    "src/signame.c", "src/strcache.c", "src/variable.c",
-    "src/version.c", "src/vpath.c",
+    "src/ar.c",       "src/arscan.c",      "src/commands.c",
+    "src/default.c",  "src/dir.c",         "src/expand.c",
+    "src/file.c",     "src/function.c",    "src/getopt.c",
+    "src/getopt1.c",  "src/guile.c",       "src/hash.c",
+    "src/implicit.c", "src/job.c",         "src/load.c",
+    "src/loadapi.c",  "src/main.c",        "src/misc.c",
+    "src/output.c",   "src/read.c",        "src/remake.c",
+    "src/rule.c",     "src/shuffle.c",     "src/signame.c",
+    "src/strcache.c", "src/variable.c",    "src/version.c",
+    "src/vpath.c",
     // ????????????????????????????????????????????????????????????????????????????????
-    "src/remote-stub.c",
+       "src/remote-stub.c",
 };
-const make_files_generic = make_files_common ++ [_][]const u8 {
+const make_files_generic = make_files_common ++ [_][]const u8{
     "src/posixos.c",
 };
-const make_files_windows = make_files_common ++ [_][]const u8 {
-    "src/w32/pathstuff.c", "src/w32/w32os.c", "src/w32/compat/dirent.c",
-    "src/w32/compat/posixfcn.c",
-    "src/w32/subproc/misc.c",
-    "src/w32/subproc/sub_proc.c", "src/w32/subproc/w32err.c",
-    "lib/getloadavg.c",
+const make_files_windows = make_files_common ++ [_][]const u8{
+    "src/w32/pathstuff.c",       "src/w32/w32os.c",        "src/w32/compat/dirent.c",
+    "src/w32/compat/posixfcn.c", "src/w32/subproc/misc.c", "src/w32/subproc/sub_proc.c",
+    "src/w32/subproc/w32err.c",  "lib/getloadavg.c",
 };
 
 const make_config = .{
@@ -429,7 +421,7 @@ const make_config = .{
     ._TIME_BITS = null,
     .__MINGW_USE_VC2005_COMPAT = null,
     .@"const" = .@"const",
-    .eaccess = null ,
+    .eaccess = null,
     .gid_t = null,
     .off_t = null,
     .pid_t = null,
